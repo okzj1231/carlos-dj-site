@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prenota – DJ Carlos</title>
+<meta name="description" content="Prenota DJ Carlos per il tuo evento a Mexico City e dintorni.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D0D0D;
+    --violet: #8B5CF6;
+    --pink: #EC4899;
+    --text: #F5F3FF;
+    --muted: #A8A3B8;
+    --card: rgba(255, 255, 255, 0.05);
+    --border: rgba(255, 255, 255, 0.14);
+    --error: #FB7185;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; line-height: 1.5; overflow-x: hidden; min-height: 100vh; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; }
+
+  /* Animated background */
+  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--bg); }
+  .blob { position: absolute; border-radius: 50%; filter: blur(110px); opacity: .5; will-change: transform; }
+  .blob.b1 { width: 55vmax; height: 55vmax; background: var(--violet); top: -20vmax; left: -15vmax; animation: drift1 18s ease-in-out infinite alternate; }
+  .blob.b2 { width: 50vmax; height: 50vmax; background: var(--pink); bottom: -22vmax; right: -15vmax; animation: drift2 22s ease-in-out infinite alternate; }
+  .bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(13,13,13,.4) 0%, rgba(13,13,13,.88) 100%); }
+  @keyframes drift1 { to { transform: translate(35vmax, 25vmax) scale(1.2); } }
+  @keyframes drift2 { to { transform: translate(-35vmax, -25vmax) scale(1.15); } }
+
+  /* Navigation */
+  header { position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 14px clamp(16px, 5vw, 48px); background: rgba(13,13,13,.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: .08em; color: var(--text); text-decoration: none; font-size: 1.05rem; }
+  .logo span { color: var(--pink); }
+  nav ul { display: flex; gap: clamp(14px, 3vw, 36px); list-style: none; }
+  nav a { color: var(--muted); text-decoration: none; font-weight: 500; font-size: .95rem; padding: 6px 2px; position: relative; transition: color .2s; }
+  nav a::after { content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: linear-gradient(90deg, var(--violet), var(--pink)); transition: width .25s; }
+  nav a:hover, nav a[aria-current="page"] { color: var(--text); }
+  nav a:hover::after, nav a[aria-current="page"]::after { width: 100%; }
+
+  main { max-width: 720px; margin: 0 auto; padding: 110px clamp(16px, 5vw, 32px) 60px; }
+  h1 { font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: clamp(1.6rem, 5vw, 2.6rem); letter-spacing: .06em; text-transform: uppercase; }
+  h1 span { color: var(--pink); text-shadow: 0 0 16px var(--pink); }
+  .sub { color: var(--muted); margin: 6px 0 28px; }
+
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: clamp(22px, 5vw, 40px); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 30px 80px -30px rgba(139,92,246,.45); }
+
+  /* Form */
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  label .req { color: var(--pink); }
+  input, select, textarea {
+    width: 100%; min-height: 48px; padding: 13px 16px; border-radius: 14px; font-size: 1rem;
+    background: rgba(0,0,0,.4); border: 1px solid var(--border);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input::placeholder, textarea::placeholder { color: rgba(168,163,184,.55); }
+  input:hover, select:hover, textarea:hover { border-color: rgba(139,92,246,.6); }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(236,72,153,.25), 0 0 20px rgba(236,72,153,.35); }
+  input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--error); box-shadow: 0 0 0 3px rgba(251,113,133,.18); }
+  .field-error { color: var(--error); font-size: .85rem; font-weight: 500; }
+  textarea { min-height: 130px; resize: vertical; }
+  /* Selettore data nativo; su iOS il campo date ignora l'altezza se non si azzera l'aspetto di default */
+  input[type=date] { color-scheme: dark; -webkit-appearance: none; appearance: none; display: block; min-height: 48px; }
+  input[type=date]::-webkit-date-and-time-value { text-align: left; min-height: 1.4em; }
+  select {
+    -webkit-appearance: none; appearance: none; cursor: pointer; color-scheme: dark; padding-right: 44px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23EC4899' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; background-size: 20px;
+  }
+  select:invalid { color: rgba(168,163,184,.7); }
+  option { background: #17141f; color: var(--text); }
+
+  .submit {
+    grid-column: 1 / -1; margin-top: 6px; min-height: 52px; padding: 17px 40px; border: 0; border-radius: 999px; cursor: pointer;
+    font-family: 'Orbitron', sans-serif; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 1rem; color: #fff;
+    background: linear-gradient(90deg, var(--violet), var(--pink));
+    box-shadow: 0 0 22px rgba(236,72,153,.6), 0 0 48px rgba(139,92,246,.45);
+    transition: transform .2s, box-shadow .2s, opacity .2s;
+  }
+  .submit:hover:not(:disabled), .submit:focus-visible { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 30px rgba(236,72,153,.9), 0 0 70px rgba(139,92,246,.7); }
+  .submit:disabled { opacity: .6; cursor: progress; }
+  .submit .spinner { display: inline-block; width: 1em; height: 1em; margin-right: .7em; vertical-align: -.15em; border: 2.5px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error { grid-column: 1 / -1; display: none; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--error); background: rgba(251,113,133,.1); color: #FECDD3; font-size: .92rem; }
+  .error.show { display: block; }
+
+  /* Confirmation */
+  /* Finestra modale di conferma */
+  .modal { position: fixed; inset: 0; z-index: 100; display: none; place-items: center; padding: 20px; overflow-y: auto;
+    background: radial-gradient(circle at 20% 15%, rgba(139,92,246,.55), transparent 55%), radial-gradient(circle at 85% 90%, rgba(236,72,153,.5), transparent 55%), rgba(13,13,13,.92);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .modal.show { display: grid; animation: fadeIn .3s ease; }
+  .modal-card { width: min(100%, 460px); text-align: center; padding: clamp(28px, 6vw, 44px); border-radius: 28px;
+    background: rgba(23,20,31,.9); border: 1px solid var(--border);
+    box-shadow: 0 30px 80px -20px rgba(139,92,246,.6), 0 0 60px -10px rgba(236,72,153,.35); animation: pop .45s ease; }
+  .check { width: 84px; height: 84px; margin: 0 auto 22px; border-radius: 50%; display: grid; place-items: center; background: var(--violet); box-shadow: 0 0 28px rgba(139,92,246,.8), 0 0 70px rgba(139,92,246,.55); }
+  .check svg { width: 42px; height: 42px; stroke: #fff; fill: none; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+  .modal h2 { font-family: 'Orbitron', sans-serif; font-size: clamp(1.2rem, 4.5vw, 1.6rem); letter-spacing: .05em; line-height: 1.3; text-shadow: 0 0 18px rgba(139,92,246,.7); margin-bottom: 12px; }
+  .modal p { color: var(--muted); margin: 0 auto; }
+  .modal .close { margin-top: 28px; min-height: 48px; padding: 14px 40px; border: 0; border-radius: 999px; cursor: pointer; color: #fff;
+    font-family: 'Orbitron', sans-serif; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: .95rem;
+    background: linear-gradient(90deg, var(--violet), var(--pink)); box-shadow: 0 0 22px rgba(236,72,153,.55), 0 0 48px rgba(139,92,246,.4); transition: transform .2s, box-shadow .2s; }
+  .modal .close:hover, .modal .close:focus-visible { transform: translateY(-2px) scale(1.03); box-shadow: 0 0 30px rgba(236,72,153,.9), 0 0 70px rgba(139,92,246,.7); }
+  @keyframes pop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .hp { position: absolute; left: -9999px; }
+
+  @media (max-width: 600px) { form { grid-template-columns: 1fr; } }
+  @media (max-width: 480px) { .logo { font-size: .9rem; } nav a { font-size: .85rem; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+<link rel="stylesheet" href="footer.css">
+<link rel="stylesheet" href="reveal.css">
+<script src="reveal.js" defer></script>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div></div>
+
+  <header>
+    <a href="index.html#home" class="logo">DJ<span>.</span>CARLOS</a>
+    <nav aria-label="Navigazione principale">
+      <ul>
+        <li><a href="index.html#home">Home</a></li>
+        <li><a href="mixes.html">Mix</a></li>
+        <li><a href="booking.html" aria-current="page">Prenota</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Prenota <span>DJ Carlos</span></h1>
+    <p class="sub">Raccontami del tuo evento: ti rispondo entro 24 ore.</p>
+
+    <div class="panel">
+      <form id="form" action="https://formspree.io/f/xqppkzkz" method="POST" novalidate>
+        <div class="field">
+          <label for="name">Nome <span class="req">*</span></label>
+          <input type="text" id="name" name="name" placeholder="Il tuo nome" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="email">E-mail <span class="req">*</span></label>
+          <input type="email" id="email" name="email" inputmode="email" placeholder="nome@esempio.com" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+        </div>
+        <div class="field">
+          <label for="date">Data dell'evento <span class="req">*</span></label>
+          <input type="date" id="date" name="event_date" required>
+        </div>
+        <div class="field">
+          <label for="type">Tipo di evento <span class="req">*</span></label>
+          <select id="type" name="event_type" required>
+            <option value="" disabled selected>Seleziona…</option>
+            <option>Matrimonio</option>
+            <option>Aziendale</option>
+            <option>Serata in discoteca</option>
+            <option>Festa privata</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="venue">Nome della location <span class="req">*</span></label>
+          <input type="text" id="venue" name="venue" placeholder="Es. Hotel Boutique Roma" required>
+        </div>
+        <div class="field">
+          <label for="budget">Fascia di budget <span class="req">*</span></label>
+          <select id="budget" name="budget" required>
+            <option value="" disabled selected>Seleziona…</option>
+            <option>Meno di 500 $</option>
+            <option>500–1.000 $</option>
+            <option>1.000–2.500 $</option>
+            <option>2.500 $ e oltre</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="details">Dettagli aggiuntivi</label>
+          <textarea id="details" name="details" placeholder="Numero di ospiti, generi musicali, orari, richieste speciali…"></textarea>
+        </div>
+
+        <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <div class="error" id="error" role="alert"></div>
+        <button type="submit" class="submit" id="submit">Invia richiesta</button>
+      </form>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <ul class="social" aria-label="Social media">
+      <li><a href="https://soundcloud.com/" target="_blank" rel="noopener noreferrer" aria-label="SoundCloud"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 17.5h9.5a3.5 3.5 0 0 0 .3-7 5.5 5.5 0 0 0-9.8 1.6V17.5z"/><path d="M3.5 14v3.5M5.8 12.5v5"/></svg></a></li>
+      <li><a href="https://open.spotify.com/" target="_blank" rel="noopener noreferrer" aria-label="Spotify"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M6.5 9.5c3.5-1 7.5-.7 11 1.2M7 12.8c3-.8 6-.5 9 1M7.5 15.8c2.4-.6 4.6-.4 6.8.7"/></svg></a></li>
+      <li><a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg></a></li>
+      <li><a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg></a></li>
+    </ul>
+    <a class="mail" href="mailto:carlos@example.com">carlos@example.com</a>
+    <p class="copy">© 2026 DJ Carlos · Mexico City · Tutti i diritti riservati</p>
+  </footer>
+
+  <div class="modal" id="done" role="dialog" aria-modal="true" aria-labelledby="doneTitle" aria-describedby="doneText">
+    <div class="modal-card">
+      <div class="check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7.5"/></svg></div>
+      <h2 id="doneTitle">Richiesta di prenotazione inviata!</h2>
+      <p id="doneText">Carlos esaminerà la tua richiesta e ti risponderà entro 24 ore.</p>
+      <button type="button" class="close" id="doneClose">Chiudi</button>
+    </div>
+  </div>
+
+<script>
+  const form = document.getElementById('form');
+  const btn = document.getElementById('submit');
+  const err = document.getElementById('error');
+  const done = document.getElementById('done');
+
+  // Non permettere date passate
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  document.getElementById('date').min = today.toISOString().slice(0, 10);
+
+  // Convalida visiva: messaggio rosso sotto ogni campo non valido
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const required = [...form.querySelectorAll('[required]')];
+
+  function setError(field, msg) {
+    let el = field.parentElement.querySelector('.field-error');
+    if (!msg) {
+      if (el) el.remove();
+      field.removeAttribute('aria-invalid');
+      field.removeAttribute('aria-describedby');
+      return;
+    }
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'field-error';
+      el.id = field.id + '-error';
+      field.parentElement.appendChild(el);
+    }
+    el.textContent = msg;
+    field.setAttribute('aria-invalid', 'true');
+    field.setAttribute('aria-describedby', el.id);
+  }
+
+  function checkField(field) {
+    const value = field.value.trim();
+    let msg = '';
+    if (!value) msg = 'Questo campo è obbligatorio';
+    else if (field.type === 'email' && !EMAIL_RE.test(value)) msg = 'Inserisci un indirizzo e-mail valido (es. nome@esempio.com)';
+    else if (field.type === 'date' && field.min && value < field.min) msg = 'La data non può essere nel passato';
+    setError(field, msg);
+    return !msg;
+  }
+
+  function validate() {
+    const results = required.map(checkField);
+    const firstBad = required[results.indexOf(false)];
+    if (firstBad) firstBad.focus();
+    return !firstBad;
+  }
+
+  // Una volta mostrato un errore, aggiornalo mentre l'utente corregge
+  required.forEach(f => {
+    const recheck = () => { if (f.hasAttribute('aria-invalid')) checkField(f); };
+    f.addEventListener('input', recheck);
+    f.addEventListener('change', recheck);
+  });
+
+  // "Chiudi" ricarica la pagina: modulo pulito per un'altra richiesta
+  // (si ricarica via URL, non con reload(), perché Firefox altrimenti ripristina i campi compilati)
+  const reopen = () => location.replace(location.pathname);
+  document.getElementById('doneClose').addEventListener('click', reopen);
+  done.addEventListener('keydown', e => { if (e.key === 'Escape') reopen(); });
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    err.classList.remove('show');
+    if (btn.disabled || !validate()) return;
+
+    // Disabilita subito il pulsante (anti doppio clic) e mostra lo spinner
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    const label = btn.textContent;
+    btn.innerHTML = '<span class="spinner" aria-hidden="true"></span>Invio in corso...';
+    const reset = () => {
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+      btn.textContent = label;
+    };
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' }
+      });
+      if (!res.ok) throw new Error();
+      reset();   // Formspree ha confermato: il pulsante torna attivo
+      document.querySelector('main').inert = true;
+      document.querySelector('header').inert = true;
+      document.querySelector('footer').inert = true;
+      done.classList.add('show');
+      document.getElementById('doneClose').focus();
+    } catch {
+      err.textContent = 'Non è stato possibile inviare la richiesta. Controlla la connessione e riprova.';
+      err.classList.add('show');
+      reset();
+    }
+  });
+</script>
+</body>
+</html>

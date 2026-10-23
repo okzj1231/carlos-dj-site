@@ -1,0 +1,24 @@
+/* Piè di pagina condiviso da tutte le pagine */
+.site-footer {
+  position: relative; text-align: center;
+  padding: 36px 20px 40px; margin-top: 40px;
+  background: #08080c; color: #A8A3B8; font-size: .85rem;
+  border-top: 2px solid transparent;
+  border-image: linear-gradient(90deg, #8B5CF6, #EC4899) 1;
+  box-shadow: 0 -10px 40px -18px rgba(236,72,153,.55);
+}
+.site-footer .social { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; list-style: none; margin: 0 0 20px; padding: 0; }
+.site-footer .social a {
+  width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%;
+  color: #F5F3FF; border: 1px solid rgba(139,92,246,.7); background: rgba(139,92,246,.08);
+  transition: transform .2s, color .2s, border-color .2s, box-shadow .2s;
+}
+.site-footer .social a:nth-child(even) { border-color: rgba(236,72,153,.7); background: rgba(236,72,153,.08); }
+.site-footer .social a:hover, .site-footer .social a:focus-visible {
+  transform: translateY(-3px); color: #fff; border-color: #EC4899;
+  box-shadow: 0 0 18px rgba(236,72,153,.7), 0 0 36px rgba(139,92,246,.45); outline: none;
+}
+.site-footer .social svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.site-footer .mail { display: inline-block; padding: 12px 6px; color: #F5F3FF; text-decoration: none; font-weight: 500; border-bottom: 1px solid rgba(236,72,153,.6); }
+.site-footer .mail:hover, .site-footer .mail:focus-visible { color: #EC4899; outline: none; }
+.site-footer .copy { margin-top: 18px; }
